@@ -19,16 +19,10 @@ import {
 export const createTable = pgTableCreator((name) => `crypto-inventory_${name}`);
 
 export const posts = createTable(
-  "post",
+  "coins",
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true }),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+    id: varchar("id", { length: 32 }).primaryKey(),
+    name: varchar("name", { length: 48 }),
+    symbol: varchar("symbol", { length: 24 })
+  }
 );
