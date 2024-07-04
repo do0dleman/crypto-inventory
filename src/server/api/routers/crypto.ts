@@ -17,7 +17,6 @@ export const cryptoRouter = createTRPCRouter({
             "accept": "application/json"
           },
           // cache: "force-cache",
-          next: { revalidate: 600 },
         },
       );
 
