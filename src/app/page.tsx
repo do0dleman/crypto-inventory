@@ -1,32 +1,13 @@
-import Link from "next/link";
-
-import { CreatePost } from "~/app/_components/create-post";
 import { api } from "~/trpc/server";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const btcPrice = await api.crypto.getPrice({coin_id: "binance-bitcoin"})
-  console.log(btcPrice)
+  const btcPrice = await api.crypto.getPrice({ coin_id: "binance-bitcoin" });
 
   return (
-    <div>
-      {/* <p>BTC price: {btcPrice}</p> */}
-    </div>
-  );
-}
-
-async function CrudShowcase() {
-  const latestPost = await api.post.getLatest();
-
-  return (
-    <div className="w-full max-w-xs">
-      {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
-      ) : (
-        <p>You have no posts yet.</p>
-      )}
-
-      <CreatePost />
+    <div className="mt-5 flex justify-center">
+      <div className="w-2/3 text-3xl">
+        {<p>BTC price: {btcPrice.price ?? "unknown"}</p>}
+      </div>
     </div>
   );
 }

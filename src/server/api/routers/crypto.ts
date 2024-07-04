@@ -1,5 +1,7 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { env } from "~/env";
+import { type geckoApiPrice } from "~/models/model";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -8,19 +10,28 @@ export const cryptoRouter = createTRPCRouter({
     .input(z.object({ coin_id: z.string() }))
     .query(async ({ input }) => {
       const res = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?x_cg_demo_api_key=${env.COINGECKO_API_KEY}=${input.coin_id}&vs_currencies=usd`,
+        `https://api.coingecko.com/api/v3/simple/price?ids=${input.coin_id}&vs_currencies=usd`,
         {
-          cache: "force-cache",
+          headers: {
+            "x-cg-demo-api-key": env.COINGECKO_API_KEY,
+            "accept": "application/json"
+          },
+          // cache: "force-cache",
           next: { revalidate: 600 },
         },
       );
 
       if (!res.ok || res.body == null) {
-        return { error: "Failled to fetch coin data." };
+        const errorObj = await res.json() as { error: string };
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: errorObj.error
+        })
       }
-      const json = (await res.json()) as any;
+      const json = await res.json() as geckoApiPrice
+
       return {
-        price: json[input.coin_id]["usd"],
+        price: json[input.coin_id]!.usd,
       };
     }),
 });
